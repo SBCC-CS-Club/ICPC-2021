@@ -1,0 +1,74 @@
+#Work in Progress, has not been tested yet
+#Node class and some functions in DoublyLinkedList class taken from Rosetta Code: http://www.rosettacode.org/wiki/Doubly-linked_list/Element_definition#Python
+#Insert function taken from Rosetta Code: http://www.rosettacode.org/wiki/Doubly-linked_list/Element_insertion#Python
+#Minor modifications made by Berkelly Gonzalez
+
+class Node(object):
+     def __init__(self, data, prev = None, next = None):
+         self.prev = prev
+         self.next = next
+         self.data = data
+         
+     def __str__(self):
+         return str(self.data)
+     
+     def __repr__(self):
+         return repr(self.data)
+         
+class DoublyLinkedList(object):
+     def __init__(self, head, tail):
+          self.head = head
+          self.tail = tail
+     
+     def __str__(self):
+         for node in iter_forward(self.head):
+             node.__str__()
+     
+     def __repr__(self):
+         for node in iter_forward(self.head):
+             node.__repr__()
+     
+     def iter_forward(node, find=None):
+         c = node
+         while c != None and c.data != find:
+             yield c
+             c = c.next
+         return c
+     
+     def iter_backward(node, find=None):
+         c = node
+         while c != None and c.data != find:
+             yield c
+             c = c.prev
+         return c
+     
+     def insert(node=None, new):
+         if node == None:
+            new.next = self.head
+            self.head.prev = new
+            self.head = new
+         else:
+            new.next = node.next
+            new.prev = node
+            node.next.prev = new
+            node.next = new
+         if new.next == None:
+            self.tail = new
+     
+     def delete(node):
+         if node.next == None:
+            self.tail = node.prev
+            node.prev.next = None
+         else:
+             node.prev.next = node.next
+         
+         if node.prev = None:
+            self.head = node.next
+            node.next.prev = None
+         else:
+            node.next.prev = node.prev
+         
+         
+         
+         
+    
