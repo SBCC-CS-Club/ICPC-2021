@@ -28,16 +28,16 @@ class DoublyLinkedList(object):
          for node in iter_forward(self.head):
              node.__repr__()
      
-     def iter_forward(node, find=None):
+     def iter_forward(node=self.head):
          c = node
-         while c != None and c.data != find:
+         while c != None:
              yield c
              c = c.next
          return c
      
-     def iter_backward(node, find=None):
+     def iter_backward(node=self.tail):
          c = node
-         while c != None and c.data != find:
+         while c != None:
              yield c
              c = c.prev
          return c
@@ -68,7 +68,16 @@ class DoublyLinkedList(object):
          else:
             node.next.prev = node.prev
          
-         
+        
+     def find(data, node=self.head):
+         c = node
+         while c.data != data and c != None:
+             yield c
+             c = c.next
+         if c != None:
+             return c
+         else:
+             return None
          
          
     
