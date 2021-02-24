@@ -1,90 +1,127 @@
-#Work in Progress, has not been tested yet
-#Node class and some functions in DoublyLinkedList class taken from Rosetta Code: http://www.rosettacode.org/wiki/Doubly-linked_list/Element_definition#Python
-#Insert function taken from Rosetta Code: http://www.rosettacode.org/wiki/Doubly-linked_list/Element_insertion#Python
-#Minor modifications made by Berkelly Gonzalez
+# Work in Progress, has not been tested yet
+# Node class and some functions in DoublyLinkedList class initially taken from Rosetta Code:
+# http://www.rosettacode.org/wiki/Doubly-linked_list/Element_definition#Python
+# Insert function initially taken from Rosetta Code:
+# http://www.rosettacode.org/wiki/Doubly-linked_list/Element_insertion#Python
+# with significant modifications made by Berkelly Gonzalez
+
+def find(data, node):  # usually want to start at the head node but allows you to start in the middle #
+    c = node
+    while c.data != data and c is not None:
+        c = c.nextN
+    return c  # only returns first instance, but can call function again using c.next to search for more #
+
+
+def iter_forward(node):  # recommend you use the head node but allows you to start in the middle #
+    c = node
+    while c is not None:
+        yield c  # geeksforgeeks.org/use-yield-keyword-instead-return-keyword-python/#
+        c = c.next
+    return c  # Will return None when finished, can omit/change based on desired behavior#
+
+
+def iter_backward(node):  # recommend you use the tail node but allows you to start in the middle #
+    c = node
+    while c is not None:
+        yield c  # geeksforgeeks.org/use-yield-keyword-instead-return-keyword-python/#
+        c = c.prev
+    return c  # Will return None when finished, can omit/change based on desired behavior#
+
 
 class Node(object):
-     def __init__(self, data, prev = None, nextN = None):  # the = means that argument is optional and default value after the equals sign will be used if one isn't suppiled #
-         self.prev = prev
-         self.nextN = nextN
-         self.data = data
-         
-     def __str__(self):
-         return str(self.data)
-     
-     def __repr__(self):
-         return repr(self.data)
-         
+    def __init__(self, data, prev=None, nextN=None):  # the = means that argument has a default value and is optional #
+        self.prev = prev
+        self.nextN = nextN
+        self.data = data
+
+    def __str__(self):
+        return str(self.data)
+
+    def __repr__(self):
+        return repr(self.data)
+
+
 class DoublyLinkedList(object):
-     def __init__(self, head, tail):
-          self.head = head
-          self.tail = tail
-          if head is not None:
-               self.head.nextN = tail
-          if tail is not None:
-               self.tail.prev = head
-     
-     def __str__(self):
-         for node in self.iter_forward(self.head):
-             node.__str__()
-     
-     def __repr__(self):
-         for node in self.iter_forward(self.head):
-             node.__repr__()
-     
-     def iter_forward(self, node):
-         c = node
-         while c is not None:
-             yield c  # geeksforgeeks.org/use-yield-keyword-instead-return-keyword-python/#
-             c = c.next
-         return c
-     
-     def iter_backward(self, node):
-         c = node
-         while c is not None: 
-             yield c
-             c = c.prev
-         return c
-     
-     def insert(self, newNode, node=None):
-         if node is None:  # inserts at BEGINNING of list by default#
-             newNode.nextN = self.head
-             if self.head is not None:
-               self.head.prev = newNode
-             self.head = newNode
-         else:  # inserts AFTER specified node #
-             newNode.nextN = node.next
-             newNode.prev = node
-             if newNode.nextN is None:
-                 self.tail = newNode
-             else:
-                 node.nextN.prev = newNode
-             node.nextN = newNode
-     
-     def delete(self, node):
-         if node.nextN is None and node.prev is None:
-             self.head = None
-             self.tail = None
-         elif node.nextN is None:
-             self.tail = node.prev
-             node.prev.nextN = None
-         elif node.prev is None:
-             self.head = node.next
-             node.nextN.prev = None
-         else:
-             node.prev.nextN = node.next
-             node.nextN.prev = node.prev
-         
-        
-     def find(data, node=self.head):
-         c = node
-         while c.data != data and c != None:
-             yield c
-             c = c.nextN
-         if c != None:
-             return c
-         else:
-             return None
-         
-         
-    
+    def __init__(self, head, tail):
+        # Caution! initializing a new list using the nodes from another list will break the old list #
+        self.head = head
+        self.tail = tail
+        self.length = 0
+
+        if self.head is not None:
+            self.length += 1
+            self.head.nextN = self.tail
+            self.head.prev = None  # if head==tail this will undo previous line so it doesn't point at itself #
+        if self. tail is not None:
+            self.length += 1
+            self.tail.prev = self.head
+            self.tail.nextN = None  # if head==tail this will undo previous line so it doesn't point at itself #
+
+    def __str__(self):
+        for node in iter_forward(self.head):
+            node.__str__()
+
+    def __repr__(self):
+        for node in iter_forward(self.head):
+            node.__repr__()
+
+    def insert_after(self, newNode, node):  # doesn't allow inserting into an empty list #
+        newNode.nextN = node.next
+        newNode.prev = node
+
+        if node is self.tail:
+            self.tail = newNode
+        else:
+            node.nextN.prev = newNode
+
+        node.nextN = newNode
+        self.length += 1
+
+    def insert_before(self, newNode, node):  # doesn't allow inserting into an empty list #
+        newNode.nextN = node
+        newNode.prev = node.prev
+
+        if node is self.head:
+            self.head = newNode
+        else:
+            node.prev.nextN = newNode
+
+        node.prev = newNode
+        self.length += 1
+
+    def insert_head(self, newNode):  # can be used to insert into an empty list #
+        if self.head is None:
+            newNode.nextN = None
+            self.tail = newNode
+        else:
+            self.head.prev = newNode
+            newNode.nextN = self.head
+
+        newNode.prev = None
+        self.head = newNode
+        self.length += 1
+
+    def insert_tail(self, newNode):  # can be used to insert into an empty list #
+        if self.tail is None:
+            newNode.prev = None
+            self.head = newNode
+        else:
+            self.tail.NextN = newNode
+            newNode.prev = self.tail
+
+        newNode.next = None
+        self.tail = newNode
+        self.length += 1
+
+    def delete(self, node):
+        if node is self.tail:
+            self.tail = node.prev
+        node.prev.nextN = node.next
+
+        if node is self.head:
+            self.head = node.next
+        node.nextN.prev = node.prev
+
+        node.nextN = None  # this line might not be necessary? but doesn't hurt #
+        node.prev = None  # this line might not be necessary? but doesn't hurt #
+        self.length -= 1
