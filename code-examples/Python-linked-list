@@ -4,9 +4,9 @@
 #Minor modifications made by Berkelly Gonzalez
 
 class Node(object):
-     def __init__(self, data, prev = None, next = None):
+     def __init__(self, data, prev = None, nextN = None):  # the = means that argument is optional and default value after the equals sign will be used if one isn't suppiled #
          self.prev = prev
-         self.next = next
+         self.nextN = nextN
          self.data = data
          
      def __str__(self):
@@ -19,61 +19,68 @@ class DoublyLinkedList(object):
      def __init__(self, head, tail):
           self.head = head
           self.tail = tail
+          if head is not None:
+               self.head.nextN = tail
+          if tail is not None:
+               self.tail.prev = head
      
      def __str__(self):
-         for node in iter_forward(self.head):
+         for node in self.iter_forward(self.head):
              node.__str__()
      
      def __repr__(self):
-         for node in iter_forward(self.head):
+         for node in self.iter_forward(self.head):
              node.__repr__()
      
-     def iter_forward(node=self.head):
+     def iter_forward(self, node):
          c = node
-         while c != None:
-             yield c
+         while c is not None:
+             yield c  # geeksforgeeks.org/use-yield-keyword-instead-return-keyword-python/#
              c = c.next
          return c
      
-     def iter_backward(node=self.tail):
+     def iter_backward(self, node):
          c = node
-         while c != None:
+         while c is not None: 
              yield c
              c = c.prev
          return c
      
-     def insert(node=None, new):
-         if node == None:
-            new.next = self.head
-            self.head.prev = new
-            self.head = new
-         else:
-            new.next = node.next
-            new.prev = node
-            node.next.prev = new
-            node.next = new
-         if new.next == None:
-            self.tail = new
+     def insert(self, newNode, node=None):
+         if node is None:  # inserts at BEGINNING of list by default#
+             newNode.nextN = self.head
+             if self.head is not None:
+               self.head.prev = newNode
+             self.head = newNode
+         else:  # inserts AFTER specified node #
+             newNode.nextN = node.next
+             newNode.prev = node
+             if newNode.nextN is None:
+                 self.tail = newNode
+             else:
+                 node.nextN.prev = newNode
+             node.nextN = newNode
      
-     def delete(node):
-         if node.next == None:
-            self.tail = node.prev
-            node.prev.next = None
+     def delete(self, node):
+         if node.nextN is None and node.prev is None:
+             self.head = None
+             self.tail = None
+         elif node.nextN is None:
+             self.tail = node.prev
+             node.prev.nextN = None
+         elif node.prev is None:
+             self.head = node.next
+             node.nextN.prev = None
          else:
-             node.prev.next = node.next
-         
-         if node.prev = None:
-            self.head = node.next
-            node.next.prev = None
-         else:
-            node.next.prev = node.prev
+             node.prev.nextN = node.next
+             node.nextN.prev = node.prev
          
         
      def find(data, node=self.head):
          c = node
          while c.data != data and c != None:
              yield c
-             c = c.next
+             c = c.nextN
          if c != None:
              return c
          else:
