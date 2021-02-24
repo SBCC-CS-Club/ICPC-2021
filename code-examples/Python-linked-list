@@ -3,47 +3,44 @@
 # http://www.rosettacode.org/wiki/Doubly-linked_list/Element_definition#Python
 # Insert function initially taken from Rosetta Code:
 # http://www.rosettacode.org/wiki/Doubly-linked_list/Element_insertion#Python
-# with significant modifications made by Berkelly Gonzalez
+# Modifications made by Berkelly Gonzalez
 
-def find(data, node):  # usually want to start at the head node but allows you to start in the middle #
+def find(data, node):
     c = node
-    while c.data != data and c is not None:
+    while c is not None and c.data != data:
         c = c.nextN
-    return c  # only returns first instance, but can call function again using c.next to search for more #
+    return c  # only returns first instance, but can call function again using c.next to continue searching #
 
 
-def iter_forward(node):  # recommend you use the head node but allows you to start in the middle #
+def iter_forward(node):
     c = node
     while c is not None:
         yield c  # geeksforgeeks.org/use-yield-keyword-instead-return-keyword-python/#
-        c = c.next
-    return c  # Will return None when finished, can omit/change based on desired behavior#
+        c = c.nextN
 
 
-def iter_backward(node):  # recommend you use the tail node but allows you to start in the middle #
+def iter_backward(node):
     c = node
     while c is not None:
         yield c  # geeksforgeeks.org/use-yield-keyword-instead-return-keyword-python/#
         c = c.prev
-    return c  # Will return None when finished, can omit/change based on desired behavior#
 
 
 class Node(object):
-    def __init__(self, data, prev=None, nextN=None):  # the = means that argument has a default value and is optional #
+    def __init__(self, data, prev=None, nextN=None):  # the = means that argument has a default value and including it is optional #
+        # Caution! If the value of data is None it will break the find and iter functions #
         self.prev = prev
         self.nextN = nextN
         self.data = data
 
-    def __str__(self):
+    def __str__(self):  # if you pass a node to print() or str(), you'll get the node data as a string #
+        # ex: node.data = ICPC -> print(node) will print ICPC, str(node) will return the string 'ICPC' #
         return str(self.data)
-
-    def __repr__(self):
-        return repr(self.data)
 
 
 class DoublyLinkedList(object):
-    def __init__(self, head, tail):
-        # Caution! initializing a new list using the nodes from another list will break the old list #
+    def __init__(self, head=None, tail=None):
+        # Caution! initializing a new list by using the nodes of another list will break the old list #
         self.head = head
         self.tail = tail
         self.length = 0
@@ -51,22 +48,16 @@ class DoublyLinkedList(object):
         if self.head is not None:
             self.length += 1
             self.head.nextN = self.tail
-            self.head.prev = None  # if head==tail this will undo previous line so it doesn't point at itself #
-        if self. tail is not None:
+        if self.tail is not None:
             self.length += 1
             self.tail.prev = self.head
-            self.tail.nextN = None  # if head==tail this will undo previous line so it doesn't point at itself #
+        if self.head is self.tail and self.head is not None:
+            self.head.prev = None  # so it won't point at itself #
+            self.tail.nextN = None
+            self.length -= 1  # don't count the same node twice #
 
-    def __str__(self):
-        for node in iter_forward(self.head):
-            node.__str__()
-
-    def __repr__(self):
-        for node in iter_forward(self.head):
-            node.__repr__()
-
-    def insert_after(self, newNode, node):  # doesn't allow inserting into an empty list #
-        newNode.nextN = node.next
+    def insert_after(self, newNode, node):  # Caution! doesn't allow inserting into an empty list #
+        newNode.nextN = node.nextN
         newNode.prev = node
 
         if node is self.tail:
@@ -76,8 +67,9 @@ class DoublyLinkedList(object):
 
         node.nextN = newNode
         self.length += 1
+        return newNode  # returns the node that was inserted #
 
-    def insert_before(self, newNode, node):  # doesn't allow inserting into an empty list #
+    def insert_before(self, newNode, node):  # Caution! doesn't allow inserting into an empty list #
         newNode.nextN = node
         newNode.prev = node.prev
 
@@ -88,6 +80,7 @@ class DoublyLinkedList(object):
 
         node.prev = newNode
         self.length += 1
+        return newNode  # returns the node that was inserted #
 
     def insert_head(self, newNode):  # can be used to insert into an empty list #
         if self.head is None:
@@ -106,22 +99,34 @@ class DoublyLinkedList(object):
             newNode.prev = None
             self.head = newNode
         else:
-            self.tail.NextN = newNode
+            self.tail.nextN = newNode
             newNode.prev = self.tail
 
         newNode.next = None
         self.tail = newNode
         self.length += 1
 
-    def delete(self, node):
+    def delete_node(self, node):
         if node is self.tail:
             self.tail = node.prev
-        node.prev.nextN = node.next
+        else:
+            node.nextN.prev = node.prev
 
         if node is self.head:
-            self.head = node.next
-        node.nextN.prev = node.prev
+            self.head = node.nextN
+        else:
+            node.prev.nextN = node.nextN
 
-        node.nextN = None  # this line might not be necessary? but doesn't hurt #
-        node.prev = None  # this line might not be necessary? but doesn't hurt #
+        c = node.nextN
+        node.nextN = None
+        node.prev = None
         self.length -= 1
+        return c  # returns node after the one that was deleted, or none if tail was deleted #
+
+    def delete_list(self, node1, node2=None):  # not inclusive, won't delete node2, will delete tail if node2 is not specified #
+        c = node1
+        while c is not None and c is not node2:
+            d = c
+            c = c.nextN
+            self.delete_node(d)
+        return c  # Will return either None or node2 when finished #
