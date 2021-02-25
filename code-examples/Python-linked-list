@@ -39,22 +39,16 @@ class Node(object):
 
 
 class DoublyLinkedList(object):
-    def __init__(self, head=None, tail=None):
-        # Caution! initializing a new list by using the nodes of another list will break the old list #
+    def __init__(self, head=None):
+        # Caution! initializing a new list using a node from another list will break the old list #
         self.head = head
-        self.tail = tail
+        self.tail = head  # Any list that isn't empty should always have both a tail and a head #
         self.length = 0
 
         if self.head is not None:
             self.length += 1
-            self.head.nextN = self.tail
-        if self.tail is not None:
-            self.length += 1
-            self.tail.prev = self.head
-        if self.head is self.tail and self.head is not None:
-            self.head.prev = None  # so it won't point at itself #
-            self.tail.nextN = None
-            self.length -= 1  # don't count the same node twice #
+            self.head.prev = None
+            self.head.nextN = None
 
     def insert_after(self, newNode, node):  # Caution! doesn't allow inserting into an empty list #
         newNode.nextN = node.nextN
